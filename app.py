@@ -6,19 +6,17 @@ from datetime import datetime
 app = Flask(__name__)
 key = ensure_key()
 
-
 @app.route("/")
 def home():
     rows = get_all_entries()
 
-    # decrypt passwords for display
+    # Decrypt passwords for display
     decrypted_rows = []
     for r in rows:
         decrypted_pw = decrypt_password(r[3], key)
         decrypted_rows.append((r[0], r[1], r[2], decrypted_pw, r[4]))
 
     return render_template("index.html", rows=decrypted_rows)
-
 
 @app.route("/add", methods=["POST"])
 def add_password():
@@ -27,18 +25,16 @@ def add_password():
     password = request.form["password"]
 
     encrypted = encrypt_password(password, key)
-    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    add_entry(website, username, encrypted, date)
+    add_entry(website, username, encrypted, date_added)
 
     return redirect("/")
-
 
 @app.route("/delete/<int:id>")
 def delete_password_route(id):
     delete_entry(id)
     return redirect("/")
-
 
 if __name__ == "__main__":
     app.run(debug=True)

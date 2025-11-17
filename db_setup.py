@@ -10,7 +10,7 @@ def create_database():
             website TEXT NOT NULL,
             username TEXT NOT NULL,
             password TEXT NOT NULL,
-            date TEXT NOT NULL
+            date_added TEXT NOT NULL
         )
     """)
 

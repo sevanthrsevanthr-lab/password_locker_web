@@ -3,30 +3,27 @@ from encryption import ensure_key, encrypt_password, decrypt_password
 from db_setup import create_database
 from datetime import datetime
 
-# Make sure table exists
+# Ensure table exists
 create_database()
 
-# Load or create encryption key
+# Load encryption key
 key = ensure_key()
-
 
 # ---------------------------------------------------
 # ADD ENTRY
-# Called by main.py with encrypted password (bytes)
 # ---------------------------------------------------
-def add_entry(website, username, encrypted_password, date):
+def add_entry(website, username, encrypted_password, date_added):
     try:
         conn = sqlite3.connect("password_locker.db")
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO passwords (website, username, password, date) VALUES (?, ?, ?, ?)",
-            (website, username, encrypted_password, date)
+            "INSERT INTO passwords (website, username, password, date_added) VALUES (?, ?, ?, ?)",
+            (website, username, encrypted_password, date_added)
         )
+
         conn.commit()
         conn.close()
-
-        print("✅ Password saved securely!")
 
     except Exception as e:
         print("Error saving password:", e)
@@ -34,13 +31,12 @@ def add_entry(website, username, encrypted_password, date):
 
 # ---------------------------------------------------
 # GET ALL ENTRIES
-# Main.py expects: id, website, username, password, date
 # ---------------------------------------------------
 def get_all_entries():
     conn = sqlite3.connect("password_locker.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, website, username, password, date FROM passwords")
+    cursor.execute("SELECT id, website, username, password, date_added FROM passwords")
     rows = cursor.fetchall()
 
     conn.close()
@@ -48,8 +44,7 @@ def get_all_entries():
 
 
 # ---------------------------------------------------
-# DELETE ENTRY (NEW)
-# Removes a password by ID
+# DELETE ENTRY
 # ---------------------------------------------------
 def delete_entry(entry_id: int):
     try:
@@ -60,14 +55,12 @@ def delete_entry(entry_id: int):
         conn.commit()
         conn.close()
 
-        print("🗑️ Entry deleted successfully!")
-
     except Exception as e:
         print("Error deleting entry:", e)
 
 
 # ---------------------------------------------------
-# OPTIONAL: VIEW passwords (only if running this file directly)
+# VIEW PASSWORDS (only for testing)
 # ---------------------------------------------------
 def view_passwords():
     try:
@@ -88,12 +81,10 @@ def view_passwords():
             print(f"🌐 Website: {website} | 👤 Username: {username} | 🔐 Password: {decrypted}")
 
     except Exception as e:
-        print("Failed to fetch entries from DB:", e)
+        print("Failed to fetch entries:", e)
 
 
-# ---------------------------------------------------
-# Standalone menu (not used by main.py)
-# ---------------------------------------------------
+# Standalone test menu
 if __name__ == "__main__":
     while True:
         print("\n1️⃣ Add Password")
@@ -109,9 +100,9 @@ if __name__ == "__main__":
             password = input("Enter password: ").strip()
 
             encrypted = encrypt_password(password, key)
-            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            add_entry(website, username, encrypted, date)
+            add_entry(website, username, encrypted, date_added)
 
         elif choice == "2":
             view_passwords()
