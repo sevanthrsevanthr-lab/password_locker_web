@@ -20,16 +20,17 @@ def home():
 
 @app.route("/add", methods=["POST"])
 def add_password():
-    website = request.form["website"]
-    username = request.form["username"]
+    website = request.form["website"].strip()
+    username = request.form["username"].strip()
 
-    password = generate_password()  # AUTO PASSWORD
+    if not website or not username:
+        return redirect("/")
 
+    password = generate_password()
     encrypted = encrypt_password(password, key)
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     add_entry(website, username, encrypted, date_added)
-
     return redirect("/")
 
 @app.route("/delete/<int:id>")
@@ -38,4 +39,4 @@ def delete_password_route(id):
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)

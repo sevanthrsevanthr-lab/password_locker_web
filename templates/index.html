@@ -3,14 +3,26 @@
 <head>
     <title>Password Locker</title>
     <style>
-        table, th, td { 
-            border: 1px solid black; 
-            border-collapse: collapse; 
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
             padding: 8px;
         }
         body { font-family: Arial; margin: 40px; }
         .btn { padding: 8px 14px; margin: 5px; cursor: pointer; }
+        .show-btn { cursor: pointer; color: blue; }
     </style>
+
+    <script>
+        function togglePassword(id) {
+            let pass = document.getElementById("p" + id);
+            if (pass.innerText.includes("*")) {
+                pass.innerText = pass.dataset.real;
+            } else {
+                pass.innerText = "********";
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -31,9 +43,14 @@
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
-        <td>{{ row[3] }}</td>
+
+        <td>
+            <span id="p{{ row[0] }}" data-real="{{ row[3] }}">********</span>
+            <span class="show-btn" onclick="togglePassword('{{ row[0] }}')">Show</span>
+        </td>
+
         <td>{{ row[4] }}</td>
-        <td><a href="/delete/{{ row[0] }}">Delete</a></td>
+        <td><a href="/delete/{{ row[0] }}" onclick="return confirm('Delete this entry?')">Delete</a></td>
     </tr>
     {% endfor %}
 </table>
