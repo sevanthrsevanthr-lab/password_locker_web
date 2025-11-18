@@ -1,70 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Password Locker</title>
-    <style>
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-            padding: 8px;
-        }
-        body { font-family: Arial; margin: 40px; }
-        .btn { padding: 8px 14px; margin: 5px; cursor: pointer; }
-        .show-btn { cursor: pointer; color: blue; }
-    </style>
 
-    <script>
-        function togglePassword(id) {
-            let pass = document.getElementById("p" + id);
-            if (pass.innerText.includes("*")) {
-                pass.innerText = pass.dataset.real;
-            } else {
-                pass.innerText = "********";
-            }
-        }
-    </script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<h2>Saved Passwords</h2>
+<nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+    <a class="navbar-brand" href="#">🔐 Password Locker</a>
 
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Website</th>
-        <th>Username</th>
-        <th>Password</th>
-        <th>Date</th>
-        <th>Delete</th>
-    </tr>
+    <div class="ms-auto d-flex align-items-center">
+        <input id="searchInput" class="form-control form-control-sm me-2" type="search" placeholder="Search website or username">
+        <button id="darkToggle" class="btn btn-sm btn-outline-secondary me-2">Dark</button>
+        <a href="/logout" class="btn btn-sm btn-outline-danger">Logout</a>
+    </div>
+</nav>
 
-    {% for row in rows %}
-    <tr>
-        <td>{{ row[0] }}</td>
-        <td>{{ row[1] }}</td>
-        <td>{{ row[2] }}</td>
+<div class="container py-4">
 
-        <td>
-            <span id="p{{ row[0] }}" data-real="{{ row[3] }}">********</span>
-            <span class="show-btn" onclick="togglePassword('{{ row[0] }}')">Show</span>
-        </td>
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h4>Saved Passwords</h4>
+        </div>
 
-        <td>{{ row[4] }}</td>
-        <td><a href="/delete/{{ row[0] }}" onclick="return confirm('Delete this entry?')">Delete</a></td>
-    </tr>
-    {% endfor %}
-</table>
+        <div class="col-md-4 text-md-end">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Add Password</button>
+        </div>
+    </div>
 
-<br><br>
+    <div class="table-responsive">
+        <table id="pwTable" class="table table-striped table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:48px">ID</th>
+                    <th>Website</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th style="width:180px">Date</th>
+                    <th style="width:200px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr class="pw-row">
+                    <td class="pw-id">{{ row[0] }}</td>
+                    <td class="pw-website">{{ row[1] }}</td>
+                    <td class="pw-username">{{ row[2] }}</td>
+                    <td>
+                        <span id="p{{ row[0] }}" class="masked" data-real="{{ row[3] }}">********</span>
+                    </td>
+                    <td>{{ row[4] }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary me-1 show-btn" data-id="{{ row[0] }}">Show</button>
+                        <button class="btn btn-sm btn-outline-success me-1 copy-btn" data-id="{{ row[0] }}">Copy</button>
+                        <a class="btn btn-sm btn-outline-primary me-1" href="/edit/{{ row[0] }}">Edit</a>
+                        <a class="btn btn-sm btn-outline-danger delete-link" href="/delete/{{ row[0] }}">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<h2>Add New Password</h2>
+<!-- Add Password Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" action="/add" method="POST">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <div class="mb-3">
+              <label class="form-label">Website</label>
+              <input class="form-control" name="website" required>
+          </div>
+          <div class="mb-3">
+              <label class="form-label">Username / Email</label>
+              <input class="form-control" name="username" required>
+          </div>
+          <div class="form-text">A strong password will be auto-generated and stored (encrypted).</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit">Add Password</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-<form action="/add" method="POST">
-    <input type="text" name="website" placeholder="Website" required><br><br>
-    <input type="text" name="username" placeholder="Username" required><br><br>
-    <b>Password will be auto-generated</b><br><br>
-    <button type="submit" class="btn">Add Password</button>
-</form>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Custom script -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
