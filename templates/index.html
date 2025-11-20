@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Password Locker</title>
 
     <!-- Bootstrap CSS -->
@@ -11,133 +11,145 @@
     <!-- Custom style -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
     <a class="navbar-brand" href="#">🔐 Password Locker</a>
 
     <div class="ms-auto d-flex align-items-center">
-        <input id="searchInput" class="form-control form-control-sm me-2" type="search" placeholder="Search website or username">
-        <button id="darkToggle" class="btn btn-sm btn-outline-secondary me-2">Dark</button>
+        <input id="searchInput" class="form-control form-control-sm me-2" 
+               type="search" placeholder="Search website or username">
+
+        <button id="darkToggle" class="btn btn-sm btn-outline-secondary me-2">
+            Dark
+        </button>
+
         <a href="/logout" class="btn btn-sm btn-outline-danger">Logout</a>
     </div>
 </nav>
 
 <div class="container py-4">
 
+    <!-- Header Row -->
     <div class="row mb-3">
         <div class="col-md-8">
             <h4>Saved Passwords</h4>
         </div>
 
         <div class="col-md-4 text-md-end">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Generate Password</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                + Add Password
+            </button>
         </div>
     </div>
 
+    <!-- Password Table -->
     <div class="table-responsive">
         <table id="pwTable" class="table table-striped table-hover align-middle">
             <thead class="table-light">
                 <tr>
-                    <th style="width:48px">ID</th>
+                    <th style="width: 48px;">ID</th>
                     <th>Website</th>
                     <th>Username</th>
                     <th>Password</th>
-                    <th style="width:180px">Date</th>
-                    <th style="width:200px">Actions</th>
+                    <th style="width: 180px;">Date</th>
+                    <th style="width: 200px;">Actions</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for row in rows %}
                 <tr class="pw-row">
                     <td class="pw-id">{{ row[0] }}</td>
                     <td class="pw-website">{{ row[1] }}</td>
                     <td class="pw-username">{{ row[2] }}</td>
+
                     <td>
-                        <span id="p{{ row[0] }}" class="masked" data-real="{{ row[3] }}">********</span>
+                        <span id="p{{ row[0] }}" class="masked" data-real="{{ row[3] }}">
+                            ********
+                        </span>
                     </td>
+
                     <td>{{ row[4] }}</td>
+
                     <td>
-                        <button class="btn btn-sm btn-outline-secondary me-1 show-btn" data-id="{{ row[0] }}">Show</button>
-                        <button class="btn btn-sm btn-outline-success me-1 copy-btn" data-id="{{ row[0] }}">Copy</button>
-                        <a class="btn btn-sm btn-outline-primary me-1" href="/edit/{{ row[0] }}">Edit</a>
-                        <a class="btn btn-sm btn-outline-danger delete-link" href="/delete/{{ row[0] }}">Delete</a>
+                        <button class="btn btn-sm btn-outline-secondary me-1 show-btn"
+                                data-id="{{ row[0] }}">
+                            Show
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-success me-1 copy-btn"
+                                data-id="{{ row[0] }}">
+                            Copy
+                        </button>
+
+                        <a class="btn btn-sm btn-outline-primary me-1"
+                           href="/edit/{{ row[0] }}">
+                            Edit
+                        </a>
+
+                        <a class="btn btn-sm btn-outline-danger delete-link"
+                           href="/delete/{{ row[0] }}">
+                            Delete
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
+
         </table>
     </div>
 </div>
 
-<!-- Generate Password Modal -->
+<!-- Add Password Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" action="/add" method="POST">
-      <div class="modal-header">
-        <h5 class="modal-title">Generate New Password</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
+    <div class="modal-dialog">
+        <form class="modal-content" action="/add" method="POST">
 
-      <div class="modal-body">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
 
-          <div class="mb-3">
-              <label class="form-label">Website</label>
-              <input class="form-control" name="website" required>
-          </div>
+            <div class="modal-body">
 
-          <div class="mb-3">
-              <label class="form-label">Username / Email</label>
-              <input class="form-control" name="username" required>
-          </div>
+                <div class="mb-3">
+                    <label class="form-label">Website</label>
+                    <input class="form-control" name="website" required>
+                </div>
 
-          <div class="mb-3">
-              <label class="form-label">Generated Password</label>
-              <div class="input-group">
-                  <input id="genPass" class="form-control" name="password" readonly required>
-                  <button type="button" id="genBtn" class="btn btn-outline-primary">Generate</button>
-                  <button type="button" id="copyGen" class="btn btn-outline-success">Copy</button>
-              </div>
-          </div>
+                <div class="mb-3">
+                    <label class="form-label">Username / Email</label>
+                    <input class="form-control" name="username" required>
+                </div>
 
-          <div class="form-text">A strong, encrypted password will be stored safely in your vault.</div>
+                <div class="form-text">
+                    A strong password will be auto-generated and stored (encrypted).
+                </div>
 
-      </div>
+            </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" type="submit">Save Password</button>
-      </div>
-    </form>
-  </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary" type="submit">
+                    Add Password
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Password Generator Script -->
-<script>
-function generatePassword(length = 14) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}<>?";
-    let password = "";
-    for (let i = 0; i < length; i++) {
-        password += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return password;
-}
-
-document.getElementById("genBtn").onclick = function() {
-    const pw = generatePassword();
-    document.getElementById("genPass").value = pw;
-};
-
-document.getElementById("copyGen").onclick = function() {
-    const input = document.getElementById("genPass");
-    navigator.clipboard.writeText(input.value);
-    alert("Password Copied!");
-};
-</script>
-
+<!-- Custom script -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
