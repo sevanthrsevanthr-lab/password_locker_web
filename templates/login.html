@@ -10,8 +10,8 @@
         body { background-color: #f2f2f2; }
         .box {
             max-width: 480px;
-            margin: 40px auto;
-            padding: 25px;
+            margin: 20px auto;
+            padding: 20px;
             background: white;
             border-radius: 10px;
         }
@@ -21,25 +21,8 @@
 
 <body>
 
-<!-- ADD PASSWORD / USER LOGIN SECTION -->
+<!-- MASTER LOGIN (TOP SECTION) -->
 <div class="box shadow mb-4">
-    <h3>🔑 Add Password</h3>
-
-    {% if not session.user %}
-        <p class="text-danger text-center">Master Login Required</p>
-    {% endif %}
-
-    <form action="/add" method="POST">
-        <input class="form-control mb-3" name="website" placeholder="Website" required>
-        <input class="form-control mb-3" name="username" placeholder="Username / Email" required>
-
-        <button class="btn btn-success w-100">Add Password</button>
-    </form>
-</div>
-
-
-<!-- MASTER LOGIN SECTION -->
-<div class="box shadow">
     <h3>🔐 Master Login</h3>
 
     {% if error %}
@@ -49,9 +32,30 @@
     <form method="POST" action="/login">
         <input class="form-control mb-3" type="password" name="password"
                placeholder="Enter Master Password" required>
-
         <button class="btn btn-primary w-100">Login</button>
     </form>
+</div>
+
+
+<!-- USER LOGIN (ADD PASSWORD) — BELOW MASTER LOGIN -->
+<div class="box shadow">
+
+    <h3>🔑 Add Password</h3>
+
+    {% if not session.user %}
+        <p class="text-danger text-center mb-2">
+            Login with Master Password above ⬆️
+        </p>
+    {% endif %}
+
+    <form action="/add" method="POST">
+        <input class="form-control mb-3" name="website" placeholder="Website" required>
+        <input class="form-control mb-3" name="username" placeholder="Username / Email" required>
+        <button class="btn btn-success w-100" {% if not session.user %}disabled{% endif %}>
+            Add Password
+        </button>
+    </form>
+
 </div>
 
 </body>

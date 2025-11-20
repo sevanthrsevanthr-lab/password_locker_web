@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session 
+from flask import Flask, render_template, request, redirect, session
 from encryption import ensure_key, encrypt_password, decrypt_password
 from password_manager import add_entry, get_all_entries, delete_entry, get_entry_by_id, update_entry
 from password_generator import generate_password
@@ -27,21 +27,20 @@ def login_required(func):
     return wrapper
 
 
-# ----------------------------------------
-# SINGLE PAGE LOGIN + ADD PASSWORD FORM
-# ----------------------------------------
+# -------------------------------------------------------
+# SINGLE PAGE — MASTER LOGIN (TOP) + USER LOGIN (BOTTOM)
+# -------------------------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # MASTER PASSWORD SUBMITTED
-    if request.method == "POST":
+    if request.method == "POST":   # When master password is submitted
         entered = request.form["password"].encode()
 
         if bcrypt.checkpw(entered, MASTER_HASH):
-            session["user"] = "authenticated"
+            session["user"] = "authenticated"   # Master login success
         else:
             return render_template("login.html", error="Invalid master password")
 
-    return render_template("login.html")
+    return render_template("login.html")   # Always show the same page
 
 
 # ----------------------------------------
@@ -54,7 +53,7 @@ def logout():
 
 
 # ----------------------------------------
-# ADD PASSWORD (TOP FORM ON SAME PAGE)
+# ADD PASSWORD (FROM SAME PAGE BELOW LOGIN)
 # ----------------------------------------
 @app.route("/add", methods=["POST"])
 @login_required
@@ -62,8 +61,9 @@ def add_password():
     website = request.form["website"].strip()
     username = request.form["username"].strip()
 
-    # Generate and encrypt password
+    # Strong password generator
     password = generate_password()
+
     encrypted = encrypt_password(password, key)
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -73,7 +73,7 @@ def add_password():
 
 
 # ----------------------------------------
-# HOME PAGE (SHOW PASSWORDS)
+# HOME PAGE – SHOW PASSWORD LIST
 # ----------------------------------------
 @app.route("/")
 @login_required
@@ -89,7 +89,7 @@ def home():
 
 
 # ----------------------------------------
-# DELETE PASSWORD
+# DELETE ENTRY
 # ----------------------------------------
 @app.route("/delete/<int:id>")
 @login_required
@@ -126,7 +126,7 @@ def update_password(id):
 
 
 # ----------------------------------------
-# DEMO LOGIN PAGE
+# DEMO CYBERSEC LOGIN PAGE
 # ----------------------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
