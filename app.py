@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session 
 from encryption import ensure_key, encrypt_password, decrypt_password
 from password_manager import add_entry, get_all_entries, delete_entry, get_entry_by_id, update_entry
 from password_generator import generate_password
@@ -28,7 +28,7 @@ def login_required(func):
 
 
 # ----------------------------
-# LOGIN PAGE
+# MASTER LOGIN PAGE
 # ----------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -37,7 +37,7 @@ def login():
 
         if bcrypt.checkpw(entered, MASTER_HASH):
             session["user"] = "authenticated"
-            return redirect("/")
+            return redirect("/user-login")  # <--- important change
         else:
             return render_template("login.html", error="Invalid master password")
 
@@ -48,6 +48,31 @@ def login():
 def logout():
     session.clear()
     return redirect("/login")
+
+
+# ----------------------------
+# USER LOGIN PAGE (GUIDE REQUIREMENT)
+# ----------------------------
+@app.route("/user-login", methods=["GET", "POST"])
+@login_required
+def user_login():
+    if request.method == "POST":
+        website = request.form["website"].strip()
+        username = request.form["username"].strip()
+
+        if not website or not username:
+            return render_template("user_login.html", error="All fields required")
+
+        # Auto-generate password
+        password = generate_password()
+        encrypted = encrypt_password(password, key)
+        date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        add_entry(website, username, encrypted, date_added)
+
+        return redirect("/")  # goes to table page
+
+    return render_template("user_login.html")
 
 
 # ----------------------------
@@ -64,26 +89,6 @@ def home():
         decrypted_rows.append((r[0], r[1], r[2], decrypted, r[4]))
 
     return render_template("index.html", rows=decrypted_rows)
-
-
-# ----------------------------
-# ADD PASSWORD
-# ----------------------------
-@app.route("/add", methods=["POST"])
-@login_required
-def add_password():
-    website = request.form["website"].strip()
-    username = request.form["username"].strip()
-
-    if not website or not username:
-        return redirect("/")
-
-    password = generate_password()
-    encrypted = encrypt_password(password, key)
-    date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    add_entry(website, username, encrypted, date_added)
-    return redirect("/")
 
 
 # ----------------------------
