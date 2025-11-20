@@ -9,47 +9,49 @@
     <style>
         body { background-color: #f2f2f2; }
         .box {
-            max-width: 420px;
-            margin: 100px auto;
-            padding: 30px;
+            max-width: 480px;
+            margin: 40px auto;
+            padding: 25px;
             background: white;
             border-radius: 10px;
         }
+        h3 { text-align: center; }
     </style>
 </head>
 
 <body>
 
-<div class="box shadow">
+<!-- ADD PASSWORD / USER LOGIN SECTION -->
+<div class="box shadow mb-4">
+    <h3>🔑 Add Password</h3>
 
     {% if not session.user %}
-        <!-- MASTER LOGIN -->
-        <h3 class="text-center mb-3">🔐 Master Login</h3>
-
-        {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-
-        <form method="POST">
-            <input class="form-control mb-3" type="password" name="password"
-                   placeholder="Enter Master Password" required>
-            <button class="btn btn-primary w-100">Login</button>
-        </form>
-
-    {% else %}
-        <!-- ADD PASSWORD FORM AFTER MASTER LOGIN -->
-        <h3 class="text-center mb-3">🔑 Add Password</h3>
-
-        <form action="/add" method="POST">
-            <input class="form-control mb-3" type="text" name="website" placeholder="Website" required>
-            <input class="form-control mb-3" type="text" name="username" placeholder="Username / Email" required>
-
-            <button class="btn btn-success w-100">Add Password</button>
-        </form>
-
-        <a href="/logout" class="btn btn-secondary w-100 mt-3">Logout</a>
+        <p class="text-danger text-center">Master Login Required</p>
     {% endif %}
 
+    <form action="/add" method="POST">
+        <input class="form-control mb-3" name="website" placeholder="Website" required>
+        <input class="form-control mb-3" name="username" placeholder="Username / Email" required>
+
+        <button class="btn btn-success w-100">Add Password</button>
+    </form>
+</div>
+
+
+<!-- MASTER LOGIN SECTION -->
+<div class="box shadow">
+    <h3>🔐 Master Login</h3>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login">
+        <input class="form-control mb-3" type="password" name="password"
+               placeholder="Enter Master Password" required>
+
+        <button class="btn btn-primary w-100">Login</button>
+    </form>
 </div>
 
 </body>

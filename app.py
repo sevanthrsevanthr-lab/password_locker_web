@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session 
 from encryption import ensure_key, encrypt_password, decrypt_password
 from password_manager import add_entry, get_all_entries, delete_entry, get_entry_by_id, update_entry
 from password_generator import generate_password
@@ -32,7 +32,7 @@ def login_required(func):
 # ----------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # When master password is submitted
+    # MASTER PASSWORD SUBMITTED
     if request.method == "POST":
         entered = request.form["password"].encode()
 
@@ -41,10 +41,12 @@ def login():
         else:
             return render_template("login.html", error="Invalid master password")
 
-    # After login → Show Add Password section automatically
     return render_template("login.html")
 
 
+# ----------------------------------------
+# LOGOUT
+# ----------------------------------------
 @app.route("/logout")
 def logout():
     session.clear()
@@ -52,7 +54,7 @@ def logout():
 
 
 # ----------------------------------------
-# ADD PASSWORD FROM SAME PAGE
+# ADD PASSWORD (TOP FORM ON SAME PAGE)
 # ----------------------------------------
 @app.route("/add", methods=["POST"])
 @login_required
@@ -60,6 +62,7 @@ def add_password():
     website = request.form["website"].strip()
     username = request.form["username"].strip()
 
+    # Generate and encrypt password
     password = generate_password()
     encrypted = encrypt_password(password, key)
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -70,7 +73,7 @@ def add_password():
 
 
 # ----------------------------------------
-# HOME PAGE – SHOW PASSWORD LIST
+# HOME PAGE (SHOW PASSWORDS)
 # ----------------------------------------
 @app.route("/")
 @login_required
@@ -123,7 +126,7 @@ def update_password(id):
 
 
 # ----------------------------------------
-# DEMO CYBERSEC LOGIN PAGE
+# DEMO LOGIN PAGE
 # ----------------------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
