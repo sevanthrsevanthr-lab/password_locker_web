@@ -10,18 +10,17 @@ import os
 # FLASK APP INITIALIZATION
 # ---------------------------------------------
 app = Flask(__name__)
-app.secret_key = "supersecret_flask_key"     # Session protection
+app.secret_key = "supersecret_flask_key"
 
 # Encryption key
 key = ensure_key()
 
-# Master password (hashed)
+# Read master password hash
 MASTER_HASH = open("master.key", "rb").read()
 
 
 # ---------------------------------------------
 # LOGIN REQUIRED DECORATOR
-# Blocks access until master login successful
 # ---------------------------------------------
 def login_required(func):
     def wrapper(*args, **kwargs):
@@ -33,19 +32,21 @@ def login_required(func):
 
 
 # ---------------------------------------------
-# MASTER LOGIN PAGE
+# MASTER LOGIN PAGE (TOP) + ADD PASSWORD (BOTTOM)
 # ---------------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # MASTER LOGIN SUBMISSION
     if request.method == "POST":
-        entered = request.form["password"].encode()
+        entered = request.form["master_password"].encode()
 
+        # Check hashed master password
         if bcrypt.checkpw(entered, MASTER_HASH):
             session["user"] = "authenticated"
-            return redirect("/")
         else:
-            return render_template("login.html", error="Invalid master password")
+            return render_template("login.html", error="Invalid Master Password")
 
+    # Always show same login page (with add password disabled if locked)
     return render_template("login.html")
 
 
@@ -59,7 +60,7 @@ def logout():
 
 
 # ---------------------------------------------
-# HOME PAGE (Dashboard)
+# DASHBOARD / HOME PAGE
 # ---------------------------------------------
 @app.route("/")
 @login_required
@@ -75,7 +76,7 @@ def home():
 
 
 # ---------------------------------------------
-# ADD PASSWORD (Auto-Generated)
+# ADD PASSWORD (ONLY AFTER MASTER LOGIN)
 # ---------------------------------------------
 @app.route("/add", methods=["POST"])
 @login_required
@@ -83,17 +84,17 @@ def add_password():
     website = request.form["website"]
     username = request.form["username"]
 
-    # Generate a strong password automatically
     password = generate_password()
     encrypted = encrypt_password(password, key)
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     add_entry(website, username, encrypted, date_added)
+
     return redirect("/")
 
 
 # ---------------------------------------------
-# DELETE ENTRY
+# DELETE PASSWORD
 # ---------------------------------------------
 @app.route("/delete/<int:id>")
 @login_required
@@ -103,18 +104,18 @@ def delete_password(id):
 
 
 # ---------------------------------------------
-# EDIT PASSWORD PAGE
+# EDIT PAGE
 # ---------------------------------------------
 @app.route("/edit/<int:id>")
 @login_required
 def edit_page(id):
     row = get_entry_by_id(id)
-    decrypted = decrypt_password(row[3], key)
-    return render_template("edit.html", row=row, password=decrypted)
+    decrypted_pw = decrypt_password(row[3], key)
+    return render_template("edit.html", row=row, password=decrypted_pw)
 
 
 # ---------------------------------------------
-# UPDATE EXISTING ENTRY
+# UPDATE PASSWORD
 # ---------------------------------------------
 @app.route("/update/<int:id>", methods=["POST"])
 @login_required
@@ -130,7 +131,7 @@ def update_password(id):
 
 
 # ---------------------------------------------
-# DEMO LOGIN PAGE (Neon Cyber Theme)
+# DEMO NEON LOGIN PAGE (FOR PRESENTATION)
 # ---------------------------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
@@ -138,9 +139,9 @@ def demo_login():
         username = request.form["username"]
         password = request.form["password"]
 
-        # Demo entries go into main DB (for presentation)
         encrypted = encrypt_password(password, key)
         date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         add_entry("DemoSite", username, encrypted, date_added)
 
         return redirect("/login")
@@ -149,7 +150,7 @@ def demo_login():
 
 
 # ---------------------------------------------
-# RUN FLASK SERVER
+# RUN SERVER
 # ---------------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
