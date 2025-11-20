@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session 
+from flask import Flask, render_template, request, redirect, session
 from encryption import ensure_key, encrypt_password, decrypt_password
 from password_manager import add_entry, get_all_entries, delete_entry, get_entry_by_id, update_entry
 from password_generator import generate_password
@@ -15,9 +15,9 @@ key = ensure_key()
 MASTER_HASH = open("master.key", "rb").read()
 
 
-# ----------------------------
+# ----------------------------------------
 # LOGIN REQUIRED DECORATOR
-# ----------------------------
+# ----------------------------------------
 def login_required(func):
     def wrapper(*args, **kwargs):
         if "user" not in session:
@@ -27,9 +27,9 @@ def login_required(func):
     return wrapper
 
 
-# ----------------------------
+# ----------------------------------------
 # MASTER LOGIN PAGE
-# ----------------------------
+# ----------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -37,7 +37,7 @@ def login():
 
         if bcrypt.checkpw(entered, MASTER_HASH):
             session["user"] = "authenticated"
-            return redirect("/user-login")  # <--- important change
+            return redirect("/user-login")
         else:
             return render_template("login.html", error="Invalid master password")
 
@@ -50,9 +50,9 @@ def logout():
     return redirect("/login")
 
 
-# ----------------------------
+# ----------------------------------------
 # USER LOGIN PAGE (GUIDE REQUIREMENT)
-# ----------------------------
+# ----------------------------------------
 @app.route("/user-login", methods=["GET", "POST"])
 @login_required
 def user_login():
@@ -70,14 +70,14 @@ def user_login():
 
         add_entry(website, username, encrypted, date_added)
 
-        return redirect("/")  # goes to table page
+        return redirect("/")
 
     return render_template("user_login.html")
 
 
-# ----------------------------
+# ----------------------------------------
 # HOME PAGE (PASSWORD LIST)
-# ----------------------------
+# ----------------------------------------
 @app.route("/")
 @login_required
 def home():
@@ -91,9 +91,29 @@ def home():
     return render_template("index.html", rows=decrypted_rows)
 
 
-# ----------------------------
+# ----------------------------------------
+# ADD PASSWORD (FROM INDEX MODAL)
+# ----------------------------------------
+@app.route("/add", methods=["POST"])
+@login_required
+def add_password():
+    website = request.form["website"].strip()
+    username = request.form["username"].strip()
+
+    # Auto-generate a password (same as user-login)
+    password = generate_password()
+
+    encrypted = encrypt_password(password, key)
+    date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    add_entry(website, username, encrypted, date_added)
+
+    return redirect("/")
+
+
+# ----------------------------------------
 # DELETE PASSWORD
-# ----------------------------
+# ----------------------------------------
 @app.route("/delete/<int:id>")
 @login_required
 def delete_password_route(id):
@@ -101,9 +121,9 @@ def delete_password_route(id):
     return redirect("/")
 
 
-# ----------------------------
+# ----------------------------------------
 # EDIT PASSWORD PAGE
-# ----------------------------
+# ----------------------------------------
 @app.route("/edit/<int:id>")
 @login_required
 def edit_page(id):
@@ -113,9 +133,9 @@ def edit_page(id):
     return render_template("edit.html", row=row, password=decrypted)
 
 
-# ----------------------------
+# ----------------------------------------
 # UPDATE PASSWORD
-# ----------------------------
+# ----------------------------------------
 @app.route("/update/<int:id>", methods=["POST"])
 @login_required
 def update_password(id):
@@ -129,5 +149,8 @@ def update_password(id):
     return redirect("/")
 
 
+# ----------------------------------------
+# RUN SERVER
+# ----------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
