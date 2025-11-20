@@ -31,7 +31,7 @@
         </div>
 
         <div class="col-md-4 text-md-end">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Add Password</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">+ Generate Password</button>
         </div>
     </div>
 
@@ -70,28 +70,43 @@
     </div>
 </div>
 
-<!-- Add Password Modal -->
+<!-- Generate Password Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" action="/add" method="POST">
       <div class="modal-header">
-        <h5 class="modal-title">Add New Password</h5>
+        <h5 class="modal-title">Generate New Password</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <div class="modal-body">
+
           <div class="mb-3">
               <label class="form-label">Website</label>
               <input class="form-control" name="website" required>
           </div>
+
           <div class="mb-3">
               <label class="form-label">Username / Email</label>
               <input class="form-control" name="username" required>
           </div>
-          <div class="form-text">A strong password will be auto-generated and stored (encrypted).</div>
+
+          <div class="mb-3">
+              <label class="form-label">Generated Password</label>
+              <div class="input-group">
+                  <input id="genPass" class="form-control" name="password" readonly required>
+                  <button type="button" id="genBtn" class="btn btn-outline-primary">Generate</button>
+                  <button type="button" id="copyGen" class="btn btn-outline-success">Copy</button>
+              </div>
+          </div>
+
+          <div class="form-text">A strong, encrypted password will be stored safely in your vault.</div>
+
       </div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary" type="submit">Add Password</button>
+        <button class="btn btn-primary" type="submit">Save Password</button>
       </div>
     </form>
   </div>
@@ -100,7 +115,30 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Custom script -->
+<!-- Password Generator Script -->
+<script>
+function generatePassword(length = 14) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}<>?";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return password;
+}
+
+document.getElementById("genBtn").onclick = function() {
+    const pw = generatePassword();
+    document.getElementById("genPass").value = pw;
+};
+
+document.getElementById("copyGen").onclick = function() {
+    const input = document.getElementById("genPass");
+    navigator.clipboard.writeText(input.value);
+    alert("Password Copied!");
+};
+</script>
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
 </html>
