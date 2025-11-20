@@ -4,48 +4,51 @@
     <meta charset="utf-8">
     <title>Add Password - Cyber Vault</title>
 
+    <!-- Bootstrap -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
     <style>
+
         body {
             background: #0a0f1f;
             color: white;
             font-family: "Roboto", sans-serif;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         @keyframes neonGlow {
-            0% { box-shadow: 0 0 10px #00eaff; }
-            50% { box-shadow: 0 0 20px #00eaff, 0 0 40px #00eaff; }
-            100% { box-shadow: 0 0 10px #00eaff; }
+            0% { box-shadow: 0 0 12px #00eaff; }
+            50% { box-shadow: 0 0 25px #00eaff, 0 0 45px #00eaff; }
+            100% { box-shadow: 0 0 12px #00eaff; }
         }
 
         .box {
-            max-width: 450px;
+            max-width: 480px;
             width: 100%;
-            margin: auto;
-            padding: 30px;
-            background: rgba(0, 0, 0, 0.7);
+            padding: 35px;
+            background: rgba(0, 0, 0, 0.75);
             border-radius: 12px;
             border: 2px solid #00eaff;
             animation: neonGlow 3s infinite ease-in-out;
         }
 
         .title {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 600;
             text-align: center;
             color: #00eaff;
-            text-shadow: 0 0 16px #00eaff;
+            text-shadow: 0 0 20px #00eaff;
         }
 
         .subtitle {
             text-align: center;
             color: #9bc4ce;
+            margin-bottom: 25px;
         }
 
         .input-glow {
@@ -55,8 +58,8 @@
         }
 
         .input-glow:focus {
+            background: rgba(255,255,255,0.12);
             box-shadow: 0 0 15px #00eaff;
-            background: rgba(255,255,255,0.15);
             color: white;
         }
 
@@ -66,22 +69,25 @@
             color: #000;
             font-weight: 600;
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
-            box-shadow: 0 0 15px #00eaff;
+            box-shadow: 0 0 20px #00eaff;
+            margin-top: 10px;
         }
 
         .btn-neon:hover {
-            box-shadow: 0 0 25px #00eaff, 0 0 50px #00eaff;
+            box-shadow: 0 0 35px #00eaff, 0 0 60px #00eaff;
         }
+
     </style>
 </head>
 
 <body>
 
 <div class="box shadow">
-    <h3 class="text-center title mb-1">🔑 Add New Password</h3>
-    <p class="text-center subtitle mb-4">Store login details securely in your vault</p>
+
+    <h3 class="title">🔑 Add New Password</h3>
+    <p class="subtitle">Securely store a new login in your encrypted Cyber Vault.</p>
 
     {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
@@ -89,7 +95,7 @@
 
     <form method="POST">
 
-        <label class="form-label">Website</label>
+        <label class="form-label mt-2">Website</label>
         <input name="website"
                class="form-control mb-3 input-glow"
                placeholder="e.g. cybervault.com"
@@ -101,11 +107,12 @@
                placeholder="e.g. user@cybervault.com"
                required>
 
-        <button class="btn-neon mt-2">
+        <button class="btn-neon" type="submit">
             Save to Vault
         </button>
 
     </form>
+
 </div>
 
 </body>
