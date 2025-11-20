@@ -106,7 +106,7 @@
     <h3 class="title">🔑 Add New Password</h3>
     <p class="subtitle">Store login details securely</p>
 
-    {% if not session.master_unlocked %}
+    {% if not session.user %}
     <p class="text-danger text-center">⚠️ Unlock vault first using Master Password above</p>
     {% endif %}
 
@@ -116,16 +116,16 @@
                name="website"
                placeholder="Website"
                required
-               {% if not session.master_unlocked %}disabled{% endif %}>
+               {% if not session.user %}disabled{% endif %}>
 
         <input class="form-control input-glow mb-3"
                name="username"
                placeholder="Username / Email"
                required
-               {% if not session.master_unlocked %}disabled{% endif %}>
+               {% if not session.user %}disabled{% endif %}>
 
         <button class="btn-neon"
-                {% if not session.master_unlocked %}disabled{% endif %}>
+                {% if not session.user %}disabled{% endif %}>
             Save Password
         </button>
 

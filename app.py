@@ -6,22 +6,14 @@ from datetime import datetime
 import bcrypt
 import os
 
-# ---------------------------------------------
-# FLASK APP INITIALIZATION
-# ---------------------------------------------
 app = Flask(__name__)
 app.secret_key = "supersecret_flask_key"
 
-# Encryption key
 key = ensure_key()
-
-# Read master password hash
 MASTER_HASH = open("master.key", "rb").read()
 
 
-# ---------------------------------------------
 # LOGIN REQUIRED DECORATOR
-# ---------------------------------------------
 def login_required(func):
     def wrapper(*args, **kwargs):
         if "user" not in session:
@@ -31,37 +23,27 @@ def login_required(func):
     return wrapper
 
 
-# ---------------------------------------------
-# MASTER LOGIN PAGE (TOP) + ADD PASSWORD (BOTTOM)
-# ---------------------------------------------
+# MASTER LOGIN PAGE (TOP + ADD PASSWORD BELOW)
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # MASTER LOGIN SUBMISSION
     if request.method == "POST":
-        entered = request.form["master_password"].encode()
+        # FIXED NAME --> must match login.html "name=password"
+        entered = request.form["password"].encode()
 
-        # Check hashed master password
         if bcrypt.checkpw(entered, MASTER_HASH):
             session["user"] = "authenticated"
         else:
             return render_template("login.html", error="Invalid Master Password")
 
-    # Always show same login page (with add password disabled if locked)
     return render_template("login.html")
 
 
-# ---------------------------------------------
-# LOGOUT
-# ---------------------------------------------
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
 
-# ---------------------------------------------
-# DASHBOARD / HOME PAGE
-# ---------------------------------------------
 @app.route("/")
 @login_required
 def home():
@@ -75,9 +57,6 @@ def home():
     return render_template("index.html", rows=decrypted_rows)
 
 
-# ---------------------------------------------
-# ADD PASSWORD (ONLY AFTER MASTER LOGIN)
-# ---------------------------------------------
 @app.route("/add", methods=["POST"])
 @login_required
 def add_password():
@@ -89,13 +68,9 @@ def add_password():
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     add_entry(website, username, encrypted, date_added)
-
     return redirect("/")
 
 
-# ---------------------------------------------
-# DELETE PASSWORD
-# ---------------------------------------------
 @app.route("/delete/<int:id>")
 @login_required
 def delete_password(id):
@@ -103,9 +78,6 @@ def delete_password(id):
     return redirect("/")
 
 
-# ---------------------------------------------
-# EDIT PAGE
-# ---------------------------------------------
 @app.route("/edit/<int:id>")
 @login_required
 def edit_page(id):
@@ -114,9 +86,6 @@ def edit_page(id):
     return render_template("edit.html", row=row, password=decrypted_pw)
 
 
-# ---------------------------------------------
-# UPDATE PASSWORD
-# ---------------------------------------------
 @app.route("/update/<int:id>", methods=["POST"])
 @login_required
 def update_password(id):
@@ -126,13 +95,9 @@ def update_password(id):
 
     encrypted = encrypt_password(password, key)
     update_entry(id, website, username, encrypted)
-
     return redirect("/")
 
 
-# ---------------------------------------------
-# DEMO NEON LOGIN PAGE (FOR PRESENTATION)
-# ---------------------------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
     if request.method == "POST":
@@ -141,7 +106,6 @@ def demo_login():
 
         encrypted = encrypt_password(password, key)
         date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         add_entry("DemoSite", username, encrypted, date_added)
 
         return redirect("/login")
@@ -149,8 +113,5 @@ def demo_login():
     return render_template("demo_login.html")
 
 
-# ---------------------------------------------
-# RUN SERVER
-# ---------------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
