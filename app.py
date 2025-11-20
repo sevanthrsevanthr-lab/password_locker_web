@@ -28,19 +28,20 @@ def login_required(func):
 
 
 # ----------------------------------------
-# MASTER LOGIN PAGE
+# SINGLE PAGE LOGIN + ADD PASSWORD FORM
 # ----------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # When master password is submitted
     if request.method == "POST":
         entered = request.form["password"].encode()
 
         if bcrypt.checkpw(entered, MASTER_HASH):
             session["user"] = "authenticated"
-            return redirect("/user-login")
         else:
             return render_template("login.html", error="Invalid master password")
 
+    # After login → Show Add Password section automatically
     return render_template("login.html")
 
 
@@ -51,48 +52,7 @@ def logout():
 
 
 # ----------------------------------------
-# USER LOGIN PAGE (GUIDE REQUIREMENT)
-# ----------------------------------------
-@app.route("/user-login", methods=["GET", "POST"])
-@login_required
-def user_login():
-    if request.method == "POST":
-        website = request.form["website"].strip()
-        username = request.form["username"].strip()
-
-        if not website or not username:
-            return render_template("user_login.html", error="All fields required")
-
-        # Auto-generate password
-        password = generate_password()
-        encrypted = encrypt_password(password, key)
-        date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        add_entry(website, username, encrypted, date_added)
-
-        return redirect("/")
-
-    return render_template("user_login.html")
-
-
-# ----------------------------------------
-# HOME PAGE (PASSWORD LIST)
-# ----------------------------------------
-@app.route("/")
-@login_required
-def home():
-    rows = get_all_entries()
-    decrypted_rows = []
-
-    for r in rows:
-        decrypted = decrypt_password(r[3], key)
-        decrypted_rows.append((r[0], r[1], r[2], decrypted, r[4]))
-
-    return render_template("index.html", rows=decrypted_rows)
-
-
-# ----------------------------------------
-# ADD PASSWORD (FROM INDEX MODAL)
+# ADD PASSWORD FROM SAME PAGE
 # ----------------------------------------
 @app.route("/add", methods=["POST"])
 @login_required
@@ -110,6 +70,22 @@ def add_password():
 
 
 # ----------------------------------------
+# HOME PAGE – SHOW PASSWORD LIST
+# ----------------------------------------
+@app.route("/")
+@login_required
+def home():
+    rows = get_all_entries()
+    decrypted_rows = []
+
+    for r in rows:
+        decrypted = decrypt_password(r[3], key)
+        decrypted_rows.append((r[0], r[1], r[2], decrypted, r[4]))
+
+    return render_template("index.html", rows=decrypted_rows)
+
+
+# ----------------------------------------
 # DELETE PASSWORD
 # ----------------------------------------
 @app.route("/delete/<int:id>")
@@ -120,14 +96,13 @@ def delete_password_route(id):
 
 
 # ----------------------------------------
-# EDIT PASSWORD PAGE
+# EDIT PAGE
 # ----------------------------------------
 @app.route("/edit/<int:id>")
 @login_required
 def edit_page(id):
     row = get_entry_by_id(id)
     decrypted = decrypt_password(row[3], key)
-
     return render_template("edit.html", row=row, password=decrypted)
 
 
@@ -148,7 +123,7 @@ def update_password(id):
 
 
 # ----------------------------------------
-# DEMO CYBERSEC LOGIN PAGE (NEON DUMMY PAGE)
+# DEMO CYBERSEC LOGIN PAGE
 # ----------------------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
@@ -156,13 +131,12 @@ def demo_login():
         username = request.form["username"]
         password = request.form["password"]
 
-        # Encrypt and save demo login into password locker
         encrypted_pw = encrypt_password(password, key)
         date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         add_entry("DemoWebsite", username, encrypted_pw, date_added)
 
-        return redirect("/")  # Return to dashboard
+        return redirect("/")
 
     return render_template("demo_login.html")
 
