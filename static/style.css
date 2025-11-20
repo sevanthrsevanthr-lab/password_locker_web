@@ -1,39 +1,152 @@
-/* light theme default */
-:root{
-  --bg: #ffffff;
-  --text: #222;
-  --muted: #6c757d;
-  --card: #f8f9fa;
+/* -----------------------------------
+   THEME COLORS
+----------------------------------- */
+
+/* Light mode */
+:root {
+    --bg: #f5f6fa;
+    --text: #1a1a1a;
+    --muted: #6c757d;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --primary: #0d6efd;
+    --primary-hover: #0056d2;
+    --success: #28a745;
+    --danger: #dc3545;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --transition: 0.25s ease;
 }
 
-/* dark theme */
-:root.dark{
-  --bg: #0f1720;
-  --text: #e6eef6;
-  --muted: #9aa6b2;
-  --card: #0b1220;
+/* Dark mode */
+:root.dark {
+    --bg: #0f1720;
+    --text: #e3e8ef;
+    --muted: #98a2b3;
+    --card: #0b1220;
+    --border: #1f2937;
+    --primary: #3b82f6;
+    --primary-hover: #1d4ed8;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --shadow: 0 4px 20px rgba(0,0,0,0.45);
 }
+
+/* -----------------------------------
+    GLOBAL STYLES
+----------------------------------- */
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto;
+    transition: background var(--transition), color var(--transition);
 }
 
-table.table {
-  background: var(--card);
+.card, table.table {
+    background: var(--card) !important;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: background var(--transition), border var(--transition);
 }
 
-/* masked/unmasked styles */
+/* -----------------------------------
+   TABLE STYLING
+----------------------------------- */
+
+table.table thead {
+    background: var(--card);
+    color: var(--text);
+    border-bottom: 2px solid var(--border);
+}
+
+table.table tbody tr:hover {
+    background: rgba(0, 123, 255, 0.08);
+    transition: var(--transition);
+}
+
+/* Mask styles */
 .masked {
-  letter-spacing: 3px;
-  font-family: monospace;
+    letter-spacing: 3px;
+    font-family: monospace;
+    opacity: 0.7;
 }
 .unmasked {
-  font-family: monospace;
+    letter-spacing: 1px;
+    font-family: monospace;
 }
 
-/* small responsive tweaks */
-@media (max-width: 576px){
-  #searchInput { width: 100px; }
+/* Buttons */
+.btn {
+    border-radius: 8px !important;
+    transition: var(--transition) !important;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-outline-danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+.btn-outline-danger:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* -----------------------------------
+   DARK MODE TOGGLE BUTTON
+----------------------------------- */
+
+#darkToggle {
+    transition: var(--transition);
+}
+
+/* -----------------------------------
+   SEARCH BOX
+----------------------------------- */
+
+#searchInput {
+    width: 160px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    transition: var(--transition);
+}
+
+#searchInput:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 8px var(--primary);
+}
+
+/* -----------------------------------
+   MODAL STYLING
+----------------------------------- */
+
+.modal-content {
+    background: var(--card);
+    color: var(--text);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+/* -----------------------------------
+   RESPONSIVE
+----------------------------------- */
+
+@media (max-width: 576px) {
+    #searchInput {
+        width: 110px;
+    }
+    .navbar .btn {
+        padding: 3px 8px;
+    }
 }
