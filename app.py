@@ -6,17 +6,22 @@ from datetime import datetime
 import bcrypt
 import os
 
+# ----------------------------------------
+# FLASK APP INITIALIZATION
+# ----------------------------------------
 app = Flask(__name__)
-app.secret_key = "supersecret_flask_key"  # for sessions
+app.secret_key = "supersecret_flask_key"  # Session security key
 
+# Load encryption key
 key = ensure_key()
 
-# Load master password hash
+# Load stored master password hash
 MASTER_HASH = open("master.key", "rb").read()
 
 
 # ----------------------------------------
 # LOGIN REQUIRED DECORATOR
+# Ensures user cannot access pages without login
 # ----------------------------------------
 def login_required(func):
     def wrapper(*args, **kwargs):
@@ -44,6 +49,9 @@ def login():
     return render_template("login.html")
 
 
+# ----------------------------------------
+# LOGOUT
+# ----------------------------------------
 @app.route("/logout")
 def logout():
     session.clear()
@@ -51,7 +59,8 @@ def logout():
 
 
 # ----------------------------------------
-# USER LOGIN PAGE (GUIDE REQUIREMENT)
+# USER LOGIN PAGE
+# Adds a password entry after master login
 # ----------------------------------------
 @app.route("/user-login", methods=["GET", "POST"])
 @login_required
@@ -63,7 +72,7 @@ def user_login():
         if not website or not username:
             return render_template("user_login.html", error="All fields required")
 
-        # Auto-generate password
+        # Auto-generate a secure password
         password = generate_password()
         encrypted = encrypt_password(password, key)
         date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -76,7 +85,7 @@ def user_login():
 
 
 # ----------------------------------------
-# HOME PAGE (PASSWORD LIST)
+# HOME PAGE (PASSWORD TABLE)
 # ----------------------------------------
 @app.route("/")
 @login_required
@@ -85,14 +94,14 @@ def home():
     decrypted_rows = []
 
     for r in rows:
-        decrypted = decrypt_password(r[3], key)
-        decrypted_rows.append((r[0], r[1], r[2], decrypted, r[4]))
+        decrypted_pw = decrypt_password(r[3], key)
+        decrypted_rows.append((r[0], r[1], r[2], decrypted_pw, r[4]))
 
     return render_template("index.html", rows=decrypted_rows)
 
 
 # ----------------------------------------
-# ADD PASSWORD (FROM INDEX MODAL)
+# ADD PASSWORD (FROM MODAL)
 # ----------------------------------------
 @app.route("/add", methods=["POST"])
 @login_required
@@ -100,9 +109,8 @@ def add_password():
     website = request.form["website"].strip()
     username = request.form["username"].strip()
 
-    # Auto-generate a password (same as user-login)
+    # Auto-generate password
     password = generate_password()
-
     encrypted = encrypt_password(password, key)
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -144,9 +152,17 @@ def update_password(id):
     password = request.form["password"]
 
     encrypted = encrypt_password(password, key)
-
     update_entry(id, website, username, encrypted)
+
     return redirect("/")
+
+
+# ----------------------------------------
+# DEMO CYBER SECURITY LOGIN PAGE (Neon Page)
+# ----------------------------------------
+@app.route("/demo-login")
+def demo_login():
+    return render_template("demo_login.html")
 
 
 # ----------------------------------------
