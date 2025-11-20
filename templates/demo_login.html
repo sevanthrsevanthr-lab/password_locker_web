@@ -26,6 +26,11 @@
             100% { box-shadow: 0 0 10px #00eaff; }
         }
 
+        @keyframes moveGrid {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100%); }
+        }
+
         .cyber-grid {
             position: absolute;
             width: 100%;
@@ -36,13 +41,8 @@
             pointer-events: none;
         }
 
-        @keyframes moveGrid {
-            from { transform: translateY(0); }
-            to { transform: translateY(-100%); }
-        }
-
         .box {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.65);
             padding: 40px;
             width: 400px;
             border-radius: 12px;
@@ -68,14 +68,14 @@
         }
 
         .input-glow {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid #00eaff;
             color: white;
         }
         .input-glow:focus {
             box-shadow: 0 0 15px #00eaff;
             border-color: #00eaff;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.12);
             color: white;
         }
 
@@ -115,9 +115,7 @@
     <h3 class="title">Secure Demo Login</h3>
     <p class="subtitle">This is a dummy page for project presentation</p>
 
-    <!-- THE FIX: PROPER FORM -->
     <form method="POST" action="/demo-login">
-
         <label class="form-label mt-2">Username / Email</label>
         <input name="username" class="form-control input-glow mb-3" placeholder="Enter username" required>
 

@@ -8,20 +8,105 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom style -->
+    <!-- Custom style (optional, still loaded) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            background: #050814;
+            color: #e6f7ff;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .navbar-neon {
+            background: rgba(0, 0, 0, 0.9) !important;
+            border-bottom: 2px solid #00eaff;
+            box-shadow: 0 0 15px rgba(0, 234, 255, 0.4);
+        }
+
+        .navbar-brand {
+            color: #00eaff !important;
+            font-weight: 600;
+            text-shadow: 0 0 12px #00eaff;
+        }
+
+        .btn-neon {
+            background: #00eaff;
+            border: none;
+            color: #000;
+            font-weight: 600;
+            box-shadow: 0 0 15px #00eaff;
+        }
+
+        .btn-neon:hover {
+            box-shadow: 0 0 25px #00eaff;
+        }
+
+        .btn-outline-neon {
+            border-color: #00eaff;
+            color: #00eaff;
+        }
+
+        .btn-outline-neon:hover {
+            background: #00eaff;
+            color: #000;
+            box-shadow: 0 0 20px #00eaff;
+        }
+
+        .container-neon {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 234, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 234, 255, 0.15);
+            padding: 20px;
+        }
+
+        table {
+            color: #e6f7ff;
+        }
+
+        thead.table-light {
+            background: rgba(0, 234, 255, 0.1) !important;
+            color: #00eaff;
+        }
+
+        tbody tr {
+            background: rgba(255,255,255,0.01);
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 234, 255, 0.12);
+        }
+
+        .masked {
+            letter-spacing: 2px;
+        }
+
+        #searchInput {
+            background: rgba(255,255,255,0.05);
+            border-color: #00eaff;
+            color: #e6f7ff;
+        }
+
+        #searchInput:focus {
+            box-shadow: 0 0 10px #00eaff;
+            background: rgba(255,255,255,0.12);
+        }
+    </style>
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
-    <a class="navbar-brand" href="#">🔐 Password Locker</a>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-neon px-3">
+    <a class="navbar-brand" href="#">🔐 Cyber Password Locker</a>
 
     <div class="ms-auto d-flex align-items-center">
-        <input id="searchInput" class="form-control form-control-sm me-2" 
+        <input id="searchInput" class="form-control form-control-sm me-2"
                type="search" placeholder="Search website or username">
 
-        <button id="darkToggle" class="btn btn-sm btn-outline-secondary me-2">
+        <!-- Dark toggle from old theme still here if your JS uses it -->
+        <button id="darkToggle" class="btn btn-sm btn-outline-neon me-2">
             Dark
         </button>
 
@@ -30,75 +115,80 @@
 </nav>
 
 <div class="container py-4">
+    <div class="container-neon">
 
-    <!-- Header Row -->
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <h4>Saved Passwords</h4>
+        <!-- Header Row -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <h4>Saved Passwords</h4>
+                <p class="text-secondary mb-0">
+                    All passwords are stored in encrypted form inside the vault.
+                </p>
+            </div>
+
+            <div class="col-md-4 text-md-end">
+                <button class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#addModal">
+                    + Add Password
+                </button>
+            </div>
         </div>
 
-        <div class="col-md-4 text-md-end">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-                + Add Password
-            </button>
+        <!-- Password Table -->
+        <div class="table-responsive">
+            <table id="pwTable" class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 48px;">ID</th>
+                        <th>Website</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th style="width: 180px;">Date</th>
+                        <th style="width: 200px;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in rows %}
+                    <tr class="pw-row">
+                        <td class="pw-id">{{ row[0] }}</td>
+                        <td class="pw-website">{{ row[1] }}</td>
+                        <td class="pw-username">{{ row[2] }}</td>
+
+                        <td>
+                            <span id="p{{ row[0] }}" class="masked" data-real="{{ row[3] }}">
+                                ********
+                            </span>
+                        </td>
+
+                        <td>{{ row[4] }}</td>
+
+                        <td>
+                            <button class="btn btn-sm btn-outline-neon me-1 show-btn"
+                                    data-id="{{ row[0] }}">
+                                Show
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-success me-1 copy-btn"
+                                    data-id="{{ row[0] }}">
+                                Copy
+                            </button>
+
+                            <a class="btn btn-sm btn-outline-primary me-1"
+                               href="/edit/{{ row[0] }}">
+                                Edit
+                            </a>
+
+                            <a class="btn btn-sm btn-outline-danger delete-link"
+                               href="/delete/{{ row[0] }}">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
         </div>
-    </div>
-
-    <!-- Password Table -->
-    <div class="table-responsive">
-        <table id="pwTable" class="table table-striped table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th style="width: 48px;">ID</th>
-                    <th>Website</th>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th style="width: 180px;">Date</th>
-                    <th style="width: 200px;">Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for row in rows %}
-                <tr class="pw-row">
-                    <td class="pw-id">{{ row[0] }}</td>
-                    <td class="pw-website">{{ row[1] }}</td>
-                    <td class="pw-username">{{ row[2] }}</td>
-
-                    <td>
-                        <span id="p{{ row[0] }}" class="masked" data-real="{{ row[3] }}">
-                            ********
-                        </span>
-                    </td>
-
-                    <td>{{ row[4] }}</td>
-
-                    <td>
-                        <button class="btn btn-sm btn-outline-secondary me-1 show-btn"
-                                data-id="{{ row[0] }}">
-                            Show
-                        </button>
-
-                        <button class="btn btn-sm btn-outline-success me-1 copy-btn"
-                                data-id="{{ row[0] }}">
-                            Copy
-                        </button>
-
-                        <a class="btn btn-sm btn-outline-primary me-1"
-                           href="/edit/{{ row[0] }}">
-                            Edit
-                        </a>
-
-                        <a class="btn btn-sm btn-outline-danger delete-link"
-                           href="/delete/{{ row[0] }}">
-                            Delete
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-
-        </table>
     </div>
 </div>
 
@@ -107,37 +197,37 @@
     <div class="modal-dialog">
         <form class="modal-content" action="/add" method="POST">
 
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
+            <div class="modal-header" style="background:#050814; border-bottom:1px solid #00eaff;">
+                <h5 class="modal-title text-info">Add New Password</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body" style="background:#050814; color:#e6f7ff;">
 
                 <div class="mb-3">
                     <label class="form-label">Website</label>
-                    <input class="form-control" name="website" required>
+                    <input class="form-control input-glow" name="website" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Username / Email</label>
-                    <input class="form-control" name="username" required>
+                    <input class="form-control input-glow" name="username" required>
                 </div>
 
-                <div class="form-text">
+                <div class="form-text text-secondary">
                     A strong password will be auto-generated and stored (encrypted).
                 </div>
 
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
+            <div class="modal-footer" style="background:#050814; border-top:1px solid #00eaff;">
+                <button type="button" class="btn btn-outline-secondary"
                         data-bs-dismiss="modal">
                     Cancel
                 </button>
 
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-neon" type="submit">
                     Add Password
                 </button>
             </div>
