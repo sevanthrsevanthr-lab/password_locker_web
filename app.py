@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from encryption import ensure_key, encrypt_password, decrypt_password
-from password_manager import add_entry, get_all_entries, delete_entry, get_entry_by_id, update_entry
+from password_manager import add_entry, get_all_entries, delete_entry, get_entry_by_id, update_entry, get_entry_by_username
 from password_generator import generate_password
 from datetime import datetime
 import bcrypt
@@ -9,10 +9,10 @@ import os
 app = Flask(__name__)
 app.secret_key = "supersecret_flask_key"
 
-# Load encryption key
+# Encryption key
 key = ensure_key()
 
-# Load stored master password hash
+# Master password hash
 MASTER_HASH = open("master.key", "rb").read()
 
 
@@ -72,7 +72,33 @@ def add_password():
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     add_entry(website, username, encrypted, date_added)
-    return redirect("/login")   # redirect to login page
+    return redirect("/demo-login")   # After storing → go to demo login
+
+
+# -----------------------------
+# DEMO LOGIN (Option 3)
+# -----------------------------
+@app.route("/demo-login", methods=["GET", "POST"])
+def demo_login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        row = get_entry_by_username(username)
+
+        if row is None:
+            return render_template("demo_login.html", error="User not found")
+
+        stored_encrypted_pw = row[3]
+        stored_plain_pw = decrypt_password(stored_encrypted_pw, key)
+
+        if password == stored_plain_pw:
+            return "<h2 style='color:lime; text-align:center;'>Login Success ✔</h2>"
+
+        else:
+            return render_template("demo_login.html", error="Incorrect Password")
+
+    return render_template("demo_login.html")
 
 
 # DELETE PASSWORD — protected

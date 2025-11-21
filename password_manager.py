@@ -33,6 +33,16 @@ def get_entry_by_id(entry_id):
     return row
 
 
+def get_entry_by_username(username):
+    """ NEW FUNCTION FOR DEMO LOGIN """
+    conn = sqlite3.connect("password_locker.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM passwords WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    conn.close()
+    return row
+
+
 def update_entry(entry_id, website, username, encrypted_password):
     conn = sqlite3.connect("password_locker.db")
     cursor = conn.cursor()
