@@ -9,11 +9,14 @@ import os
 app = Flask(__name__)
 app.secret_key = "supersecret_flask_key"
 
+# Load encryption key
 key = ensure_key()
+
+# Load stored master password hash
 MASTER_HASH = open("master.key", "rb").read()
 
 
-# LOGIN REQUIRED DECORATOR
+# LOGIN REQUIRED DECORATOR — only for viewing dashboard
 def login_required(func):
     def wrapper(*args, **kwargs):
         if "user" not in session:
@@ -23,15 +26,15 @@ def login_required(func):
     return wrapper
 
 
-# MASTER LOGIN PAGE (TOP + ADD PASSWORD BELOW)
+# MASTER LOGIN PAGE
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        # FIXED NAME --> must match login.html "name=password"
         entered = request.form["password"].encode()
 
         if bcrypt.checkpw(entered, MASTER_HASH):
             session["user"] = "authenticated"
+            return redirect("/")
         else:
             return render_template("login.html", error="Invalid Master Password")
 
@@ -44,6 +47,7 @@ def logout():
     return redirect("/login")
 
 
+# DASHBOARD — requires master key
 @app.route("/")
 @login_required
 def home():
@@ -57,8 +61,8 @@ def home():
     return render_template("index.html", rows=decrypted_rows)
 
 
+# ADD PASSWORD — DOES NOT REQUIRE MASTER LOGIN
 @app.route("/add", methods=["POST"])
-@login_required
 def add_password():
     website = request.form["website"]
     username = request.form["username"]
@@ -68,9 +72,10 @@ def add_password():
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     add_entry(website, username, encrypted, date_added)
-    return redirect("/")
+    return redirect("/login")   # redirect to login page
 
 
+# DELETE PASSWORD — protected
 @app.route("/delete/<int:id>")
 @login_required
 def delete_password(id):
@@ -78,6 +83,7 @@ def delete_password(id):
     return redirect("/")
 
 
+# EDIT PAGE — protected
 @app.route("/edit/<int:id>")
 @login_required
 def edit_page(id):
@@ -86,6 +92,7 @@ def edit_page(id):
     return render_template("edit.html", row=row, password=decrypted_pw)
 
 
+# UPDATE PASSWORD — protected
 @app.route("/update/<int:id>", methods=["POST"])
 @login_required
 def update_password(id):
@@ -95,22 +102,8 @@ def update_password(id):
 
     encrypted = encrypt_password(password, key)
     update_entry(id, website, username, encrypted)
+
     return redirect("/")
-
-
-@app.route("/demo-login", methods=["GET", "POST"])
-def demo_login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        encrypted = encrypt_password(password, key)
-        date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        add_entry("DemoSite", username, encrypted, date_added)
-
-        return redirect("/login")
-
-    return render_template("demo_login.html")
 
 
 if __name__ == "__main__":

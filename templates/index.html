@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>Cyber Vault - Dashboard</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -58,18 +57,6 @@
             text-shadow: 0 0 10px #00eaff;
         }
 
-        .action-btn {
-            border-color: #00eaff !important;
-            color: #00eaff !important;
-            font-weight: 500;
-        }
-
-        .action-btn:hover {
-            background: #00eaff !important;
-            color: black !important;
-            box-shadow: 0 0 18px #00eaff;
-        }
-
         .masked {
             letter-spacing: 3px;
         }
@@ -82,26 +69,16 @@
 <!-- NAVBAR -->
 <nav class="nav-neon d-flex align-items-center justify-content-between px-3">
     <span class="nav-title">🔐 Cyber Vault</span>
-
-    <a href="/logout" class="btn btn-sm btn-neon">
-        Logout
-    </a>
+    <a href="/logout" class="btn btn-sm btn-neon">Logout</a>
 </nav>
 
 
 <div class="container py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between mb-3">
-        <h3 style="color:#00eaff; text-shadow:0 0 15px #00eaff;">Saved Passwords</h3>
+    <h3 style="color:#00eaff; text-shadow:0 0 15px #00eaff;">Saved Passwords</h3>
 
-        <button class="btn btn-neon" data-bs-toggle="modal" data-bs-target="#addModal">
-            + Add Password
-        </button>
-    </div>
-
-    <!-- PASSWORD TABLE -->
-    <div class="table-responsive">
+    <!-- Password Table -->
+    <div class="table-responsive mt-3">
         <table class="table table-neon table-hover align-middle">
             <thead>
                 <tr>
@@ -130,90 +107,46 @@
                     <td>{{ row[4] }}</td>
 
                     <td>
-                        <button class="btn btn-sm action-btn me-1 show-btn" data-id="{{ row[0] }}">
-                            Show
-                        </button>
-
-                        <button class="btn btn-sm action-btn me-1 copy-btn" data-id="{{ row[0] }}">
-                            Copy
-                        </button>
-
-                        <a class="btn btn-sm action-btn me-1" href="/edit/{{ row[0] }}">
-                            Edit
-                        </a>
-
-                        <a class="btn btn-sm action-btn" href="/delete/{{ row[0] }}">
-                            Delete
-                        </a>
+                        <button class="btn btn-sm btn-neon show-btn" data-id="{{ row[0] }}">Show</button>
+                        <button class="btn btn-sm btn-neon copy-btn" data-id="{{ row[0] }}">Copy</button>
+                        <a class="btn btn-sm btn-neon" href="/edit/{{ row[0] }}">Edit</a>
+                        <a class="btn btn-sm btn-neon" href="/delete/{{ row[0] }}">Delete</a>
                     </td>
                 </tr>
-
                 {% endfor %}
             </tbody>
+
         </table>
     </div>
+
 </div>
 
 
-<!-- ADD PASSWORD MODAL -->
-<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <form class="modal-content" action="/add" method="POST">
-
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-
-                <label class="form-label">Website</label>
-                <input class="form-control" name="website" required>
-
-                <label class="form-label mt-3">Username / Email</label>
-                <input class="form-control" name="username" required>
-
-                <p class="text-info mt-2">A strong password will be auto-generated.</p>
-
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-neon" type="submit">Add Password</button>
-            </div>
-
-        </form>
-    </div>
-</div>
-
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Show/Copy Password Script -->
 <script>
-    document.querySelectorAll('.show-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            let id = btn.getAttribute("data-id");
-            let span = document.getElementById("p"+id);
+document.querySelectorAll('.show-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        let id = btn.getAttribute("data-id");
+        let span = document.getElementById("p"+id);
 
-            if (span.textContent === "********") {
-                span.textContent = span.getAttribute("data-real");
-            } else {
-                span.textContent = "********";
-            }
-        });
+        if (span.textContent === "********") {
+            span.textContent = span.getAttribute("data-real");
+        } else {
+            span.textContent = "********";
+        }
     });
+});
 
-    document.querySelectorAll('.copy-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            let id = btn.getAttribute("data-id");
-            let text = document.getElementById("p"+id).getAttribute("data-real");
-            navigator.clipboard.writeText(text);
-            btn.textContent = "Copied!";
-            setTimeout(() => btn.textContent = "Copy", 1500);
-        });
+document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        let id = btn.getAttribute("data-id");
+        let text = document.getElementById("p"+id).getAttribute("data-real");
+
+        navigator.clipboard.writeText(text);
+
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = "Copy", 1500);
     });
+});
 </script>
 
 </body>

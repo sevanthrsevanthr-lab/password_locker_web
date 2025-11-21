@@ -86,34 +86,21 @@
 
 <div class="box shadow">
 
-    <h3 class="title">🔑 Add New Password</h3>
-    <p class="subtitle">Securely store a new login in your encrypted Cyber Vault.</p>
+    <h3 class="title">🔑 Store New Credential</h3>
+    <p class="subtitle">You can add credentials anytime — master key is only required to VIEW them.</p>
 
     {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
     {% endif %}
 
+    <!-- FORM IS ALWAYS ENABLED -->
     <form method="POST">
 
         <label class="form-label mt-2">Website</label>
         <input name="website"
                class="form-control mb-3 input-glow"
-               placeholder="e.g. cybervault.com"
+               placeholder="e.g. instagram.com"
                required>
 
         <label class="form-label">Username / Email</label>
         <input name="username"
-               class="form-control mb-3 input-glow"
-               placeholder="e.g. user@cybervault.com"
-               required>
-
-        <button class="btn-neon" type="submit">
-            Save to Vault
-        </button>
-
-    </form>
-
-</div>
-
-</body>
-</html>
