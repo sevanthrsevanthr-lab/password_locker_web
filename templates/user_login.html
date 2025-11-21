@@ -87,14 +87,14 @@
 <div class="box shadow">
 
     <h3 class="title">🔑 Store New Credential</h3>
-    <p class="subtitle">You can add credentials anytime — master key is only required to VIEW them.</p>
+    <p class="subtitle">Add website login details securely — a strong password will be auto-generated.</p>
 
     {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
     {% endif %}
 
-    <!-- FORM IS ALWAYS ENABLED -->
-    <form method="POST">
+    <!-- FORM -->
+    <form method="POST" action="/add">
 
         <label class="form-label mt-2">Website</label>
         <input name="website"
@@ -104,3 +104,15 @@
 
         <label class="form-label">Username / Email</label>
         <input name="username"
+               class="form-control mb-3 input-glow"
+               placeholder="e.g. you@example.com"
+               required>
+
+        <button class="btn-neon">Generate & Store Password</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

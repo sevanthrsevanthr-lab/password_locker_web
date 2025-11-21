@@ -20,7 +20,7 @@
 
         @keyframes neonGlow {
             0% { box-shadow: 0 0 10px #76B900; }
-            50% { box-shadow: 0 0 20px #76B900, 0 0 40px #76B900; }
+            50% { box-shadow: 0 0 22px #76B900, 0 0 40px #76B900; }
             100% { box-shadow: 0 0 10px #76B900; }
         }
 
@@ -34,11 +34,11 @@
         }
 
         .title {
-            font-size: 26px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             text-align: center;
             color: #76B900;
-            text-shadow: 0 0 15px #76B900;
+            text-shadow: 0 0 18px #76B900;
         }
 
         .subtitle {
@@ -50,22 +50,28 @@
         .input-glow {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid #76B900;
-            color: white;
+            color: #ffffff !important;
+        }
+
+        .input-glow::placeholder {
+            color: #7fa35c !important;
         }
 
         .input-glow:focus {
             box-shadow: 0 0 15px #76B900;
             border-color: #76B900;
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255,255,255,0.12);
+            color: #ffffff !important;
         }
 
         .btn-neon {
             background: #76B900;
             border: none;
-            color: #000;
+            color: black;
             font-weight: bold;
             width: 100%;
             padding: 10px;
+            margin-top: 5px;
             border-radius: 6px;
             box-shadow: 0 0 15px #76B900;
         }
@@ -81,7 +87,7 @@
 <div class="box">
 
     <h3 class="title">🔐 Secure Demo Login</h3>
-    <p class="subtitle">This is a dummy page for project presentation</p>
+    <p class="subtitle">Auto-fill demo account for presentation</p>
 
     {% if error %}
         <div class="alert alert-danger text-center">{{ error }}</div>
@@ -90,8 +96,10 @@
     {% if success %}
         <div class="alert alert-success text-center">{{ success }}</div>
 
-        <!-- ⭐ GO TO DASHBOARD BUTTON -->
-        <a href="/demo-dashboard" class="btn btn-success w-100 mt-3">Go to Dashboard →</a>
+        <!-- ⭐ GO TO DASHBOARD (OPEN IN NEW TAB) -->
+        <a href="/demo-dashboard" target="_blank" class="btn btn-success w-100 mt-3">
+            Go to Dashboard →
+        </a>
     {% endif %}
 
     <form method="POST" action="/demo-login" class="mt-3">
@@ -110,15 +118,14 @@
 </div>
 
 
-<!-- ⭐ Auto-fill Password Script -->
+<!-- ⭐ Auto-Fill Script -->
 <script>
 document.getElementById("username").addEventListener("change", function () {
     const uname = this.value.trim();
-
     if (uname.length === 0) return;
 
     fetch(`/api/get-password/${encodeURIComponent(uname)}`)
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             if (data.password) {
                 document.getElementById("password").value = data.password;
