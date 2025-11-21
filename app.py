@@ -11,16 +11,18 @@ import bcrypt
 app = Flask(__name__)
 app.secret_key = "supersecret_flask_key"
 
+# ------------------------------------------------------------
 # Load encryption key
+# ------------------------------------------------------------
 key = ensure_key()
 
-# Load master password hash
+# Load stored master password hash
 MASTER_HASH = open("master.key", "rb").read()
 
 
-# =====================================================================
-#  LOGIN REQUIRED DECORATOR
-# =====================================================================
+# ------------------------------------------------------------
+# LOGIN REQUIRED DECORATOR
+# ------------------------------------------------------------
 def login_required(func):
     def wrapper(*args, **kwargs):
         if "user" not in session:
@@ -30,9 +32,9 @@ def login_required(func):
     return wrapper
 
 
-# =====================================================================
-#  MASTER LOGIN PAGE
-# =====================================================================
+# ------------------------------------------------------------
+# MASTER LOGIN PAGE
+# ------------------------------------------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -47,18 +49,18 @@ def login():
     return render_template("login.html")
 
 
-# =====================================================================
-#  LOGOUT
-# =====================================================================
+# ------------------------------------------------------------
+# LOGOUT
+# ------------------------------------------------------------
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
 
-# =====================================================================
-#  MAIN PASSWORD VAULT DASHBOARD
-# =====================================================================
+# ------------------------------------------------------------
+# MAIN DASHBOARD (REQUIRES MASTER LOGIN)
+# ------------------------------------------------------------
 @app.route("/")
 @login_required
 def home():
@@ -72,26 +74,28 @@ def home():
     return render_template("index.html", rows=decrypted_rows)
 
 
-# =====================================================================
-#  ADD PASSWORD → Then go to DEMO LOGIN
-# =====================================================================
+# ------------------------------------------------------------
+# ADD PASSWORD → redirects to demo-login
+# ------------------------------------------------------------
 @app.route("/add", methods=["POST"])
 def add_password():
     website = request.form["website"]
     username = request.form["username"]
 
+    # auto-generate password
     password = generate_password()
     encrypted = encrypt_password(password, key)
-    date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     add_entry(website, username, encrypted, date_added)
 
+    # now user performs demo login
     return redirect("/demo-login")
 
 
-# =====================================================================
-#  DEMO LOGIN PAGE
-# =====================================================================
+# ------------------------------------------------------------
+# DEMO LOGIN PAGE
+# ------------------------------------------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
     if request.method == "POST":
@@ -100,49 +104,47 @@ def demo_login():
 
         row = get_entry_by_username(username)
 
-        if not row:
+        if row is None:
             return render_template("demo_login.html", error="❌ User not found")
 
-        stored_pw = decrypt_password(row[3], key)
+        stored_plain_pw = decrypt_password(row[3], key)
 
-        if password == stored_pw:
+        if password == stored_plain_pw:
             return render_template(
                 "demo_login.html",
                 success="✔ Login Successful!",
-                logged_user=username
+                logged_user=username,
+                goto_dashboard=True
             )
-        else:
-            return render_template("demo_login.html", error="❌ Incorrect Password")
+
+        return render_template("demo_login.html", error="❌ Incorrect Password")
 
     return render_template("demo_login.html")
 
 
-# =====================================================================
-#  ⭐ API FOR PASSWORD AUTO-FILL (Used by JS)
-# =====================================================================
-@app.route("/get-password", methods=["POST"])
-def get_password_api():
-    username = request.form["username"]
+# ------------------------------------------------------------
+# API → returns decrypted password (auto-fill)
+# ------------------------------------------------------------
+@app.route("/api/get-password/<username>")
+def api_get_password(username):
     row = get_entry_by_username(username)
-
     if row:
         decrypted = decrypt_password(row[3], key)
         return jsonify({"password": decrypted})
-
     return jsonify({"password": ""})
 
 
-# =====================================================================
-#  DEMO DASHBOARD
-# =====================================================================
+# ------------------------------------------------------------
+# DEMO DASHBOARD AFTER SUCCESS LOGIN
+# ------------------------------------------------------------
 @app.route("/demo-dashboard")
 def demo_dashboard():
     return render_template("demo_dashboard.html")
 
 
-# =====================================================================
-#  DELETE ENTRY
-# =====================================================================
+# ------------------------------------------------------------
+# DELETE PASSWORD ENTRY
+# ------------------------------------------------------------
 @app.route("/delete/<int:id>")
 @login_required
 def delete_password(id):
@@ -150,20 +152,20 @@ def delete_password(id):
     return redirect("/")
 
 
-# =====================================================================
-#  EDIT PAGE
-# =====================================================================
+# ------------------------------------------------------------
+# EDIT PAGE
+# ------------------------------------------------------------
 @app.route("/edit/<int:id>")
 @login_required
 def edit_page(id):
     row = get_entry_by_id(id)
-    decrypted = decrypt_password(row[3], key)
-    return render_template("edit.html", row=row, password=decrypted)
+    decrypted_pw = decrypt_password(row[3], key)
+    return render_template("edit.html", row=row, password=decrypted_pw)
 
 
-# =====================================================================
-#  UPDATE ENTRY
-# =====================================================================
+# ------------------------------------------------------------
+# UPDATE PASSWORD ENTRY
+# ------------------------------------------------------------
 @app.route("/update/<int:id>", methods=["POST"])
 @login_required
 def update_password(id):
@@ -177,8 +179,8 @@ def update_password(id):
     return redirect("/")
 
 
-# =====================================================================
-#  RUN APP
-# =====================================================================
+# ------------------------------------------------------------
+# RUN APP
+# ------------------------------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
