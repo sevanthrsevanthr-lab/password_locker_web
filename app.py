@@ -18,7 +18,6 @@ key = ensure_key()
 MASTER_HASH = open("master.key", "rb").read()
 
 
-
 # =====================================================================
 #  LOGIN REQUIRED DECORATOR
 # =====================================================================
@@ -29,7 +28,6 @@ def login_required(func):
         return func(*args, **kwargs)
     wrapper.__name__ = func.__name__
     return wrapper
-
 
 
 # =====================================================================
@@ -49,7 +47,6 @@ def login():
     return render_template("login.html")
 
 
-
 # =====================================================================
 #  LOGOUT
 # =====================================================================
@@ -59,9 +56,8 @@ def logout():
     return redirect("/login")
 
 
-
 # =====================================================================
-#  MAIN PASSWORD VAULT DASHBOARD (MASTER LOGIN REQUIRED)
+#  MAIN PASSWORD VAULT DASHBOARD
 # =====================================================================
 @app.route("/")
 @login_required
@@ -76,30 +72,25 @@ def home():
     return render_template("index.html", rows=decrypted_rows)
 
 
-
 # =====================================================================
-#  ADD PASSWORD (NO LOGIN REQUIRED)
+#  ADD PASSWORD → Then go to DEMO LOGIN
 # =====================================================================
 @app.route("/add", methods=["POST"])
 def add_password():
     website = request.form["website"]
     username = request.form["username"]
 
-    # Auto-generate password
     password = generate_password()
-
     encrypted = encrypt_password(password, key)
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     add_entry(website, username, encrypted, date_added)
 
-    # After adding → go to demo-login
     return redirect("/demo-login")
 
 
-
 # =====================================================================
-#  DEMO LOGIN (FOR PRESENTATION)
+#  DEMO LOGIN PAGE
 # =====================================================================
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
@@ -109,12 +100,12 @@ def demo_login():
 
         row = get_entry_by_username(username)
 
-        if row is None:
+        if not row:
             return render_template("demo_login.html", error="❌ User not found")
 
-        stored_decrypted_pw = decrypt_password(row[3], key)
+        stored_pw = decrypt_password(row[3], key)
 
-        if password == stored_decrypted_pw:
+        if password == stored_pw:
             return render_template(
                 "demo_login.html",
                 success="✔ Login Successful!",
@@ -126,12 +117,12 @@ def demo_login():
     return render_template("demo_login.html")
 
 
-
 # =====================================================================
-#  API: RETURN PASSWORD FOR USERNAME (AUTO-FILL)
+#  ⭐ API FOR PASSWORD AUTO-FILL (Used by JS)
 # =====================================================================
-@app.route("/api/get-password/<username>")
-def api_get_password(username):
+@app.route("/get-password", methods=["POST"])
+def get_password_api():
+    username = request.form["username"]
     row = get_entry_by_username(username)
 
     if row:
@@ -141,14 +132,12 @@ def api_get_password(username):
     return jsonify({"password": ""})
 
 
-
 # =====================================================================
-#  DEMO DASHBOARD (OPTIONAL)
+#  DEMO DASHBOARD
 # =====================================================================
 @app.route("/demo-dashboard")
 def demo_dashboard():
     return render_template("demo_dashboard.html")
-
 
 
 # =====================================================================
@@ -161,9 +150,8 @@ def delete_password(id):
     return redirect("/")
 
 
-
 # =====================================================================
-#  EDIT ENTRY PAGE
+#  EDIT PAGE
 # =====================================================================
 @app.route("/edit/<int:id>")
 @login_required
@@ -171,7 +159,6 @@ def edit_page(id):
     row = get_entry_by_id(id)
     decrypted = decrypt_password(row[3], key)
     return render_template("edit.html", row=row, password=decrypted)
-
 
 
 # =====================================================================
@@ -188,7 +175,6 @@ def update_password(id):
     update_entry(id, website, username, encrypted)
 
     return redirect("/")
-
 
 
 # =====================================================================
