@@ -22,7 +22,7 @@
 
         @keyframes neonGlow {
             0% { box-shadow: 0 0 10px #00eaff; }
-            50% { box-shadow: 0 0 20px #00eaff, 0 0 40px #00eaff; }
+            50% { box-shadow: 0 0 25px #00eaff, 0 0 40px #00eaff; }
             100% { box-shadow: 0 0 10px #00eaff; }
         }
 
@@ -50,10 +50,11 @@
         }
 
         .input-glow {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             border: 1px solid #00eaff;
             color: white;
         }
+
         .input-glow:focus {
             box-shadow: 0 0 15px #00eaff;
             border-color: #00eaff;
@@ -75,7 +76,6 @@
         .btn-neon:hover {
             box-shadow: 0 0 25px #00eaff, 0 0 50px #00eaff;
         }
-
     </style>
 </head>
 
@@ -92,6 +92,10 @@
     {% endif %}
     {% if success %}
         <div class="alert alert-success text-center">{{ success }}</div>
+        <a href="/demo-dashboard" class="btn btn-neon mt-3">Go to Demo Dashboard →</a>
+        {% if logged_user %}
+            <p class="text-info text-center mt-2">Logged in as: <b>{{ logged_user }}</b></p>
+        {% endif %}
     {% endif %}
 
     <form method="POST" action="/demo-login">
