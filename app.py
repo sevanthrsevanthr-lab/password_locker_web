@@ -26,7 +26,9 @@ def login_required(func):
     return wrapper
 
 
+# -------------------------
 # MASTER LOGIN PAGE
+# -------------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -47,7 +49,9 @@ def logout():
     return redirect("/login")
 
 
-# DASHBOARD — requires master key
+# -------------------------
+# MAIN DASHBOARD (MASTER PROTECTED)
+# -------------------------
 @app.route("/")
 @login_required
 def home():
@@ -61,7 +65,9 @@ def home():
     return render_template("index.html", rows=decrypted_rows)
 
 
-# ADD PASSWORD — DOES NOT REQUIRE MASTER LOGIN
+# -------------------------
+# ADD PASSWORD (PUBLIC - NO MASTER REQUIRED)
+# -------------------------
 @app.route("/add", methods=["POST"])
 def add_password():
     website = request.form["website"]
@@ -72,12 +78,14 @@ def add_password():
     date_added = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     add_entry(website, username, encrypted, date_added)
-    return redirect("/demo-login")   # After storing → go to demo login
+
+    # After storing → open demo login page
+    return redirect("/demo-login")
 
 
-# -----------------------------
-# DEMO LOGIN (UPDATED)
-# -----------------------------
+# -------------------------
+# DEMO LOGIN (PUBLIC PAGE)
+# -------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
     if request.method == "POST":
@@ -93,14 +101,28 @@ def demo_login():
         stored_plain_pw = decrypt_password(stored_encrypted_pw, key)
 
         if password == stored_plain_pw:
-            return render_template("demo_login.html", success="✔ Login Successful!")
+            return render_template(
+                "demo_login.html",
+                success="✔ Login Successful!",
+                logged_user=username   # Show message: Logged in as username
+            )
         else:
             return render_template("demo_login.html", error="❌ Incorrect Password")
 
     return render_template("demo_login.html")
 
 
-# DELETE PASSWORD — protected
+# -------------------------
+# DEMO DASHBOARD (NEW TAB PAGE)
+# -------------------------
+@app.route("/demo-dashboard")
+def demo_dashboard():
+    return render_template("demo_dashboard.html")
+
+
+# -------------------------
+# DELETE PASSWORD
+# -------------------------
 @app.route("/delete/<int:id>")
 @login_required
 def delete_password(id):
@@ -108,7 +130,9 @@ def delete_password(id):
     return redirect("/")
 
 
-# EDIT PAGE — protected
+# -------------------------
+# EDIT PAGE
+# -------------------------
 @app.route("/edit/<int:id>")
 @login_required
 def edit_page(id):
@@ -117,7 +141,9 @@ def edit_page(id):
     return render_template("edit.html", row=row, password=decrypted_pw)
 
 
-# UPDATE PASSWORD — protected
+# -------------------------
+# UPDATE PASSWORD
+# -------------------------
 @app.route("/update/<int:id>", methods=["POST"])
 @login_required
 def update_password(id):

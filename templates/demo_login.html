@@ -92,7 +92,12 @@
     {% endif %}
     {% if success %}
         <div class="alert alert-success text-center">{{ success }}</div>
-        <a href="/demo-dashboard" class="btn btn-neon mt-3">Go to Demo Dashboard →</a>
+
+        <!-- 🔥 OPEN DEMO DASHBOARD IN NEW TAB -->
+        <a href="/demo-dashboard" target="_blank" class="btn btn-neon mt-3">
+            Go to Demo Dashboard →
+        </a>
+
         {% if logged_user %}
             <p class="text-info text-center mt-2">Logged in as: <b>{{ logged_user }}</b></p>
         {% endif %}
