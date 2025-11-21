@@ -13,41 +13,114 @@
             padding: 40px;
         }
 
-        .box {
-            max-width: 600px;
-            margin: auto;
-            padding: 30px;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid #00eaff;
-            border-radius: 12px;
+        .welcome-title {
+            font-size: 34px;
+            font-weight: 700;
+            color: #00eaff;
+            text-shadow: 0 0 20px #00eaff;
+            animation: pulse 2.5s infinite ease-in-out;
             text-align: center;
-            box-shadow: 0 0 20px #00eaff;
         }
 
-        h2 {
+        @keyframes pulse {
+            0% { opacity: 0.9; }
+            50% { opacity: 1; }
+            100% { opacity: 0.9; }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #9bc4ce;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+
+        .card-neon {
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #00eaff;
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 0 18px #00eaff;
+            transition: 0.3s;
+        }
+
+        .card-neon:hover {
+            box-shadow: 0 0 40px #00eaff, 0 0 70px #00eaff;
+            transform: translateY(-3px);
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
             color: #00eaff;
-            text-shadow: 0 0 15px #00eaff;
+        }
+
+        .card-value {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 10px;
         }
 
         .btn-neon {
-            margin-top: 20px;
+            margin-top: 30px;
+            display: block;
             background: #00eaff;
-            border: none;
             color: black;
             font-weight: bold;
-            padding: 12px 25px;
-            border-radius: 6px;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
             box-shadow: 0 0 15px #00eaff;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-neon:hover {
+            box-shadow: 0 0 30px #00eaff, 0 0 50px #00eaff;
         }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Welcome, {{ username }} 👋</h2>
-    <p class="mt-3">This is your demo dashboard for project presentation.</p>
+<!-- WELCOME SECTION -->
+<h1 class="welcome-title">
+    Welcome, {{ username or 'Guest' }} 👋
+</h1>
+<p class="subtitle">This is your interactive demo dashboard.</p>
 
+<!-- STAT CARDS -->
+<div class="container">
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card-neon">
+                <div class="card-title">Saved Accounts</div>
+                <div class="card-value">12</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-neon">
+                <div class="card-title">Last Login</div>
+                <div class="card-value">2 hrs ago</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-neon">
+                <div class="card-title">Security Level</div>
+                <div class="card-value">High 🔒</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- BUTTONS -->
+<div class="container mt-4 text-center">
     <a href="/demo-login" class="btn-neon">Logout</a>
+    <a href="/" class="btn-neon">Open Main Dashboard</a>
 </div>
 
 </body>
