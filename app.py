@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 from encryption import ensure_key, encrypt_password, decrypt_password
 from password_manager import add_entry, get_all_entries, delete_entry, get_entry_by_id, update_entry, get_entry_by_username
 from password_generator import generate_password
@@ -16,7 +16,9 @@ key = ensure_key()
 MASTER_HASH = open("master.key", "rb").read()
 
 
-# LOGIN REQUIRED DECORATOR — only for viewing dashboard
+# -------------------------
+# LOGIN REQUIRED DECORATOR
+# -------------------------
 def login_required(func):
     def wrapper(*args, **kwargs):
         if "user" not in session:
@@ -50,7 +52,7 @@ def logout():
 
 
 # -------------------------
-# MAIN DASHBOARD (MASTER PROTECTED)
+# MAIN DASHBOARD
 # -------------------------
 @app.route("/")
 @login_required
@@ -66,7 +68,7 @@ def home():
 
 
 # -------------------------
-# ADD PASSWORD (PUBLIC - NO MASTER REQUIRED)
+# ADD PASSWORD
 # -------------------------
 @app.route("/add", methods=["POST"])
 def add_password():
@@ -79,12 +81,11 @@ def add_password():
 
     add_entry(website, username, encrypted, date_added)
 
-    # After storing → open demo login page
     return redirect("/demo-login")
 
 
 # -------------------------
-# DEMO LOGIN (PUBLIC PAGE)
+# DEMO LOGIN PAGE
 # -------------------------
 @app.route("/demo-login", methods=["GET", "POST"])
 def demo_login():
@@ -104,7 +105,7 @@ def demo_login():
             return render_template(
                 "demo_login.html",
                 success="✔ Login Successful!",
-                logged_user=username   # Show message: Logged in as username
+                logged_user=username
             )
         else:
             return render_template("demo_login.html", error="❌ Incorrect Password")
@@ -113,7 +114,19 @@ def demo_login():
 
 
 # -------------------------
-# DEMO DASHBOARD (NEW TAB PAGE)
+# ⭐ API: RETURN PASSWORD BY USERNAME (AUTO-FILL)
+# -------------------------
+@app.route("/api/get-password/<username>")
+def api_get_password(username):
+    row = get_entry_by_username(username)
+    if row:
+        decrypted = decrypt_password(row[3], key)
+        return jsonify({"password": decrypted})
+    return jsonify({"password": ""})
+
+
+# -------------------------
+# DEMO DASHBOARD
 # -------------------------
 @app.route("/demo-dashboard")
 def demo_dashboard():

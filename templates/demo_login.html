@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Demo Login</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -58,8 +57,6 @@
         .input-glow:focus {
             box-shadow: 0 0 15px #00eaff;
             border-color: #00eaff;
-            background: rgba(255,255,255,0.12);
-            color: white;
         }
 
         .btn-neon {
@@ -72,10 +69,6 @@
             border-radius: 6px;
             box-shadow: 0 0 15px #00eaff;
         }
-
-        .btn-neon:hover {
-            box-shadow: 0 0 25px #00eaff, 0 0 50px #00eaff;
-        }
     </style>
 </head>
 
@@ -86,23 +79,20 @@
     <h3 class="title">🔐 Secure Demo Login</h3>
     <p class="subtitle">This is a dummy page for project presentation</p>
 
-    <!-- SUCCESS / ERROR MESSAGES -->
     {% if error %}
         <div class="alert alert-danger text-center">{{ error }}</div>
     {% endif %}
     {% if success %}
         <div class="alert alert-success text-center">{{ success }}</div>
-
-        <!-- 🔥 OPEN DEMO DASHBOARD IN NEW TAB -->
         <a href="/demo-dashboard" target="_blank" class="btn btn-neon mt-3">
             Go to Demo Dashboard →
         </a>
-
         {% if logged_user %}
             <p class="text-info text-center mt-2">Logged in as: <b>{{ logged_user }}</b></p>
         {% endif %}
     {% endif %}
 
+    <!-- Demo Login Form -->
     <form method="POST" action="/demo-login">
         <label class="form-label mt-2">Username / Email</label>
         <input name="username" class="form-control input-glow mb-3" placeholder="Enter username" required>
@@ -114,6 +104,21 @@
     </form>
 
 </div>
+
+<!-- ⭐ AUTO-FILL PASSWORD SCRIPT -->
+<script>
+document.querySelector("input[name='username']").addEventListener("input", function() {
+    let username = this.value;
+
+    if (username.length > 2) {
+        fetch(`/api/get-password/${username}`)
+            .then(res => res.json())
+            .then(data => {
+                document.querySelector("input[name='password']").value = data.password;
+            });
+    }
+});
+</script>
 
 </body>
 </html>
